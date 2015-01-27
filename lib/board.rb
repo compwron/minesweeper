@@ -1,59 +1,53 @@
+require_relative 'square'
 class Board
-	def initialize board_size, bomb_count
-		x = board_size.first
-		y = board_size.last
+  def initialize(coords, bomb_count)
+    @x_size = coords.first
+    @y_size = coords.last
 
-		used_coords = []
-		bomb_coords = (0...bomb_count).map { |i|
-			new_coord = generate(x, y, used_coords)
-			used_coords << new_coord
-		}
+    used_coords = []
+    bomb_coords = (0...bomb_count).map do |_i|
+      new_coord = _generate(@x_size, @y_size, used_coords)
+      used_coords << new_coord
+    end
 
-		p bomb_coords
+    @data = (0...@x_size).map do |x|
+      (0...@y_size).map do |y|
+        Square.new([x, y], used_coords.include?([x, y]))
+      end
+    end.flatten
 
-		@data = (0...board_size.first).map { |x|
-			(0...board_size.last).map { |y|
-				if used_coords.include?([x, y])
-					Square.new([x, y], true)
-				else
-					Square.new([x, y], false)
-				end
-			}
-		}
+    @data.map do |c|
+      c.adjacent_bombs(_bombs_next_to(c, @data))
+    end
+  end
 
-		@data.flatten.map { |c|
-			c.adjacent_bombs(bombs_next_to(c, @data))
-		}
+  def _bombs_next_to(square, squares)
+    squares.select do|s|
+      ((s.x == square.x + 1) || (s.x == square.x - 1)) && (((s.y == square.y + 1) || (s.y == square.y - 1)) || (s.y == square.y)) ||
+        ((s.y == square.y + 1) || (s.y == square.y - 1)) && (((s.x == square.x + 1) || (s.x == square.x - 1)) || (s.x == square.x))
+    end.count(&:is_bomb?)
+  end
 
-		# everything is masked
-	end
+  def _generate(x, y, used)
+    generated = [rand(x), rand(y)]
+    used.include?(generated) ? _generate(x, y, used) : generated
+  end
 
-	def bombs_next_to square, squares
-		squares.select {|s|
-			# x +- 1 and (y += 1 || y ==)
-			# y +- 1 and (x +=1 || x ==)
-			# [:+, :-].map {}
-			((s.x == square.x + 1) || (s.x == square.x - 1)) && (((s.y == square.y + 1) || (s.y == square.y - 1)) || (s.y == square.y)) #||
-				# ((s.x == square.x + 1) || (s.x == square.x - 1)) && (((s.y == square.y + 1) || (s.y == square.y - 1)) || (s.y == square.y)) 
+  def to_s
+    (0..@y_size).map do|y|
+      @data.select { |s| s.y == y }.map(&:to_s).join(' ')
+    end.join(" \n")
+  end
 
-		}.count(&:is_bomb?)
-	end
+  def reveal(x, y)
+    square_at(x, y).reveal
+  end
 
-	def generate x, y, used
-		generated = [rand(x), rand(y)]
-		if !used.include? generated
-			generated
-		else
-			generate x, y, used
-		end
-		
-	end
+  def flag(x, y)
+    square_at(x, y).flag
+  end
 
-	def reveal x, y
-		square_at([x, y]).reveal
-	end
-
-	def data
-		@data
-	end
+  def square_at(x, y)
+    @data.find { |s| s.x == x && s.y == y }
+  end
 end
