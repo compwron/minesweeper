@@ -11,9 +11,9 @@ max_y = ARGV[1].to_i
 bomb_count = ARGV[2].to_i
 
 g = Game.new([max_x, max_y], bomb_count)
+puts "Options: \n  reveal <x> <y>\n  flag <x> <y>"
 while g.in_progress
   puts g.board
-  puts "Options: \n  reveal <x> <y>\n  flag <x> <y>"
   user_says = STDIN.gets.chomp
   command_type, x, y = user_says.split(' ')
   if command_type == 'reveal'
