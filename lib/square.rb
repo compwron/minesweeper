@@ -1,5 +1,6 @@
 class Square
   attr_reader :x, :y, :adjacent_bomb_count
+
   def initialize(coords, is_bomb)
     @x = coords.first
     @y = coords.last
@@ -19,10 +20,12 @@ class Square
 
   def reveal
     @revealed = true
+    self
   end
 
   def flag
     @is_flag = true
+    self
   end
 
   def to_s

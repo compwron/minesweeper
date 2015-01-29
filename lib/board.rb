@@ -21,6 +21,26 @@ class Board
     end
   end
 
+  def full_and_accurate
+    _full && _accurate
+  end
+
+  def _full
+    @data.select { |s| s.to_s == '?' }.count == 0
+  end
+
+  def _accurate
+    @data.select { |s| s.to_s == 'F' }.reject(&:is_bomb?).count == 0
+  end
+
+  def reveal_all
+    (0...@x_size).each do|i|
+      (0...@y_size).each do|j|
+        reveal(i, j)
+      end
+    end
+  end
+
   def _bombs_next_to(square, squares)
     squares.select do|s|
       ((s.x == square.x + 1) || (s.x == square.x - 1)) && (((s.y == square.y + 1) || (s.y == square.y - 1)) || (s.y == square.y)) ||
@@ -41,6 +61,7 @@ class Board
 
   def reveal(x, y)
     square_at(x, y).reveal
+    # if revealed square is a bomb, mark it X and reveal all others without marking them.
   end
 
   def flag(x, y)
