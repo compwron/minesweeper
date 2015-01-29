@@ -15,11 +15,11 @@ while g.in_progress
   puts g.board
   puts "Options: \n  reveal <x> <y>\n  flag <x> <y>"
   user_says = STDIN.gets.chomp
-  pieces = user_says.split(' ')
-  if pieces.first == 'reveal'
-    g.reveal(pieces[1].to_i, pieces[2].to_i)
-  elsif pieces.first == 'flag'
-    g.flag(pieces[1].to_i, pieces[2].to_i)
+  command_type, x, y = user_says.split(' ')
+  if command_type == 'reveal'
+    g.reveal(x.to_i, y.to_i)
+  elsif command_type == 'flag'
+    g.flag(x.to_i, y.to_i)
   else
     puts 'invalid command'
   end
